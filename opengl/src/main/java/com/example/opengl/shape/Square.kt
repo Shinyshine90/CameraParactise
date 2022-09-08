@@ -1,7 +1,7 @@
 package com.example.opengl.shape
 
 import android.opengl.GLES20
-import com.example.opengl.shader.ShaderUtils
+import com.example.opengl.util.ShaderUtils
 import com.example.opengl.shader.rotateXYMatrix
 import com.example.opengl.shader.toFloatBuffer
 
@@ -11,25 +11,15 @@ class Square {
         0F, 0F,
         0.5F, 0.5F,
         0.5F, -0.5F,
-
-        0.5F, -0.5F,
-        0.5F, 0.5F,
-        -0.5F, -0.5F,
-
-        -0.5F, -0.5F,
-        -0.5F, 0.5F,
-        0F, 0F,
-
-        -0.5F, 0.5F,
-        0.5F, 0.5F,
-        0F, 0F
-
-        ).toFloatBuffer()
+        1F, 0F
+    ).toFloatBuffer()
 
     private val colorData = floatArrayOf(
         1.0f, 0.0f, 0.0f, 1.0f,
         0.0f, 1.0f, 0.0f, 1.0f,
-        0.0f, 0.0f, 1.0f, 1.0f).toFloatBuffer()
+        0.0f, 0.0f, 1.0f, 1.0f,
+        0.0f, 0.0f, 1.0f, 1.0f,
+    ).toFloatBuffer()
 
     private val translateVec = floatArrayOf(0.2f, 0.2f, 0f, 0f).toFloatBuffer()
 
@@ -65,7 +55,7 @@ class Square {
         GLES20.glEnableVertexAttribArray(fragColorLocation)
         GLES20.glVertexAttribPointer(fragColorLocation, 4, GLES20.GL_FLOAT, false, 0, colorData)
 
-        GLES20.glDrawArrays(GLES20.GL_TRIANGLES, 0, 3)
+        GLES20.glDrawArrays(GLES20.GL_TRIANGLES, 0, 4)
         GLES20.glDisableVertexAttribArray(vertexLocation)
     }
 
@@ -87,7 +77,7 @@ class Square {
                         0.0, 0.0, 0.0, 1
                     );
                     v_Color = a_Color;
-                    gl_Position = scales * u_RotateMatrix * a_Position + u_TranslateVec;
+                    gl_Position = scales * a_Position + u_TranslateVec;
                 }
             """
 

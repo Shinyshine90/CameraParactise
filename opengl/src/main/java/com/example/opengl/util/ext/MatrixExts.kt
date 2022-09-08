@@ -6,10 +6,10 @@ import java.nio.FloatBuffer
 import kotlin.math.cos
 import kotlin.math.sin
 
-fun scaleXYMatrix(scale: Float): FloatArray =
+fun scaleXYMatrix(scaleX: Float, scaleY: Float): FloatArray =
     floatArrayOf(
-        scale, 0.0f, 0.0f, 0.0f,
-        0.0f, scale, 0.0f, 0.0f,
+        scaleX, 0.0f, 0.0f, 0.0f,
+        0.0f, scaleY, 0.0f, 0.0f,
         0.0f, 0.0f, 1.0f, 0.0f,
         0.0f, 0.0f, 0.0f, 1.0f
     )

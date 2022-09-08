@@ -1,4 +1,4 @@
-package com.example.opengl.shader
+package com.example.opengl.util
 
 import android.opengl.GLES20
 
