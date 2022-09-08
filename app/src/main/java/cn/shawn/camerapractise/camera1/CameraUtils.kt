@@ -6,9 +6,9 @@ import android.view.Surface
 import android.view.WindowManager
 
 @Suppress("DEPRECATION")
-object OrientationUtils {
+object CameraUtils {
 
-    fun getCameraDisplayOrientation(context: Context, cameraId: Int, camera: Camera): Int {
+    fun getCameraDisplayOrientation(context: Context, cameraId: Int): Int {
         val info = Camera.CameraInfo()
         Camera.getCameraInfo(cameraId, info)
         val rotation =

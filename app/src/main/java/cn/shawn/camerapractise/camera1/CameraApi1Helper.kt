@@ -6,6 +6,7 @@ import android.util.Log
 import android.util.SparseArray
 import android.view.SurfaceHolder
 import android.view.SurfaceView
+import cn.shawn.camerapractise.recorder.VideoRecorder
 import java.lang.Exception
 
 private const val TAG = "CameraApi1Helper"
@@ -19,6 +20,10 @@ class CameraApi1Helper(private val surfaceView: SurfaceView) {
 
     private val availableCameras = SparseArray<Camera.CameraInfo>()
 
+    private val videoRecorder by lazy {
+        VideoRecorder(surfaceView.context)
+    }
+
     private val availableCameraCount: Int
         get() = Camera.getNumberOfCameras()
 
@@ -28,6 +33,7 @@ class CameraApi1Helper(private val surfaceView: SurfaceView) {
             release()
             camera = Camera.open(id)
             cameraId = id
+            setupCameraCallback()
             Log.d(TAG, "camera params info ${camera?.paramsInfo()}")
             true
         } catch (e: Exception) {
@@ -58,18 +64,33 @@ class CameraApi1Helper(private val surfaceView: SurfaceView) {
                     this.focusMode = Camera.Parameters.FOCUS_MODE_CONTINUOUS_VIDEO
                 }
 
-                camera.setDisplayOrientation(OrientationUtils.getCameraDisplayOrientation(surfaceView.context, cameraId, camera))
+                //camera.setDisplayOrientation(CameraUtils.getCameraDisplayOrientation(surfaceView.context, cameraId))
             }
             camera.parameters = params
         }
     }
 
+
+    private fun setupCameraCallback() {
+        execCameraSafe { camera ->
+            camera.setErrorCallback { error, _ ->
+                Log.e(TAG, "setupCameraCallback: error code $error")
+            }
+
+            camera.setPreviewCallback { data: ByteArray?, _ ->
+                Log.d(TAG, "setupCameraCallback: ${data.contentToString()}")
+            }
+        }
+    }
+
     fun startPreview() {
-        surfaceView.holder.addCallback(object: SurfaceHolder.Callback{
+        surfaceView.holder.addCallback(object : SurfaceHolder.Callback {
             override fun surfaceCreated(holder: SurfaceHolder) {
                 execCameraSafe { camera ->
                     camera.setPreviewDisplay(surfaceView.holder)
                     camera.startPreview()
+                    //recordVideo()
+
                 }
             }
 
@@ -81,8 +102,7 @@ class CameraApi1Helper(private val surfaceView: SurfaceView) {
             ) {
             }
 
-            override fun surfaceDestroyed(holder: SurfaceHolder) {
-            }
+            override fun surfaceDestroyed(holder: SurfaceHolder) {}
         })
 
     }
@@ -98,13 +118,17 @@ class CameraApi1Helper(private val surfaceView: SurfaceView) {
         }
     }
 
+    fun recordVideo() {
+        execCameraSafe { camera ->
+            videoRecorder.startIntervalRecorder(camera)
+        }
+    }
 
     fun getFrontFacingCameraId(): Int? {
         for (i in 0 until availableCameras.size()) {
             if (availableCameras.valueAt(i).isFacingFront()) {
                 return availableCameras.keyAt(i)
             }
-
         }
         return null
     }
