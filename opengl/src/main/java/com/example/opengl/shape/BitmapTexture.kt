@@ -2,11 +2,11 @@ package com.example.opengl.shape
 
 import android.content.Context
 import android.opengl.GLES20
-import com.example.opengl.shader.scaleXYMatrix
-import com.example.opengl.shader.toFloatBuffer
-import com.example.opengl.shader.translateXYMatrix
 import com.example.opengl.util.BitmapUtils
 import com.example.opengl.util.ShaderUtils
+import com.example.opengl.util.ext.scaleXYMatrix
+import com.example.opengl.util.ext.toFloatBuffer
+import com.example.opengl.util.ext.translateXYMatrix
 import java.nio.ByteBuffer
 
 class BitmapTexture(private val context: Context) {

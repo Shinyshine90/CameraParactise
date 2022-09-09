@@ -2,8 +2,8 @@ package com.example.opengl.shape
 
 import android.opengl.GLES20
 import com.example.opengl.util.ShaderUtils
-import com.example.opengl.shader.rotateXYMatrix
-import com.example.opengl.shader.toFloatBuffer
+import com.example.opengl.util.ext.rotateXYMatrix
+import com.example.opengl.util.ext.toFloatBuffer
 
 class Square {
 

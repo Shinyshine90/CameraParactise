@@ -1,4 +1,4 @@
-package com.example.opengl.shader
+package com.example.opengl.util.ext
 
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
@@ -19,7 +19,7 @@ fun translateXYMatrix(offsetX: Float, offsetY: Float): FloatArray =
         1f, 0.0f, 0.0f, 0.0f,
         0.0f, 1f, 0.0f, 0.0f,
         0.0f, 0.0f, 1f, 0.0f,
-        offsetX, offsetY, 0.0f, 1f
+        offsetX, offsetY, 1.0f, 1f
     )
 
 fun rotateXYMatrix(degrees: Float): FloatArray =
