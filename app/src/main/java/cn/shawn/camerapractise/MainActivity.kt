@@ -21,13 +21,9 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(viewBinding.root)
-        cameraApi1.getBackFacingCameraId()?.apply {
-            cameraApi1.open(this)
-            cameraApi1.setupCamera(30, 1280, 720)
-            cameraApi1.startPreview()
-        }
+
         viewBinding.btnShot.setOnClickListener {
-            cameraApi1.takePicture()
+
         }
     }
 
