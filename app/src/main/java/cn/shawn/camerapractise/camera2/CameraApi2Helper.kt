@@ -2,40 +2,74 @@ package cn.shawn.camerapractise.camera2
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.graphics.ImageFormat
 import android.graphics.SurfaceTexture
 import android.hardware.camera2.*
+import android.media.Image
+import android.media.ImageReader
+import android.os.Environment
 import android.os.Handler
 import android.os.HandlerThread
+import android.os.SystemClock
 import android.util.Log
+import android.util.Size
 import android.view.Surface
+import cn.shawn.camerapractise.util.ImageUtils
+import java.io.File
 
-private const val TAG  = "CameraApi2Helper"
+private const val TAG = "CameraApi2Helper"
 
 @SuppressLint("MissingPermission")
 class CameraApi2Helper(private val context: Context) {
-    
+
     private val workThread = HandlerThread("Camera2OperateThread").apply { start() }
-    
-    private val workHandler by lazy { 
+
+    private val workHandler by lazy {
         Handler(workThread.looper)
     }
 
     private val cameraManager by lazy {
         context.getSystemService(Context.CAMERA_SERVICE) as CameraManager
     }
-    
+
     private var cameraDevice: CameraDevice? = null
 
     private var captureSession: CameraCaptureSession? = null
 
     private var captureRequest: CaptureRequest? = null
 
+    private val previewSize = Size(1280, 720)
 
-    fun openCamera(cameraId: String = CameraCharacteristics.LENS_FACING_FRONT.toString()) {
-        cameraManager.openCamera(cameraId, object: CameraDevice.StateCallback(){
+    private val imageReader by lazy {
+        ImageReader.newInstance(previewSize.width, previewSize.height, ImageFormat.YUV_420_888, 1)
+            .apply {
+                setOnImageAvailableListener(object: ImageReader.OnImageAvailableListener {
+                    override fun onImageAvailable(reader: ImageReader?) {
+                        reader ?: return
+                        reader.acquireNextImage().apply {
+                            val yLength= this.planes[0].buffer.remaining()
+                            val uLength= this.planes[1].buffer.remaining()
+                            val vLength= this.planes[2].buffer.remaining()
+                            Log.d(TAG, "onImageAvailable: thread=${Thread.currentThread().name}, " +
+                                    "width=${this.width}, height=${this.height}, yLength=$yLength, uLength=$uLength, vLength=$vLength")
+                            this.close()
+                        }
+                    }
+                }, workHandler)
+            }
+    }
+
+    fun printCameraInfo() {
+        cameraManager.getCameraCharacteristics(CameraCharacteristics.LENS_FACING_FRONT.toString()).printCameraInfo(TAG)
+    }
+
+    fun startCapture(cameraId: String = CameraCharacteristics.LENS_FACING_FRONT.toString(), surfaceTexture: SurfaceTexture) {
+        cameraManager.openCamera(cameraId, object : CameraDevice.StateCallback() {
+
             override fun onOpened(camera: CameraDevice) {
                 Log.d(TAG, "onOpened: ")
                 cameraDevice = camera
+                createCaptureSession(camera, Surface(surfaceTexture))
             }
 
             override fun onDisconnected(camera: CameraDevice) {
@@ -48,69 +82,39 @@ class CameraApi2Helper(private val context: Context) {
         }, workHandler)
     }
 
-    fun setupSurfaceTexture(texture: SurfaceTexture) {
-        cameraDevice.execute { cameraDevice ->
-            val surface = Surface(texture)
-            createCaptureSession(surface)
-            createCaptureRequest(surface)
-        }
-    }
-
-    private fun createCaptureSession(surface: Surface) {
-        cameraDevice.execute { cameraDevice ->
-            cameraDevice.createCaptureSession(listOf(surface), object: CameraCaptureSession.StateCallback() {
+    private fun createCaptureSession(cameraDevice: CameraDevice, surface: Surface) {
+        cameraDevice.createCaptureSession(
+            listOf(surface),
+            object : CameraCaptureSession.StateCallback() {
                 override fun onConfigured(session: CameraCaptureSession) {
                     captureSession = session
+                    Log.d(TAG, "onConfigured: ")
+                    setRepeatingRequest(cameraDevice, session, surface)
                 }
 
                 override fun onConfigureFailed(session: CameraCaptureSession) {
-
+                    Log.d(TAG, "onConfigureFailed: ")
                 }
-            }, workHandler)
-        }
+            },
+            workHandler
+        )
     }
 
-    private fun createCaptureRequest(surface: Surface) {
-        cameraDevice.execute { cameraDevice ->
-            val requestBuilder = cameraDevice.createCaptureRequest(CameraDevice.TEMPLATE_PREVIEW)
-            requestBuilder.addTarget(surface)
-            requestBuilder.build()
-        }
-    }
 
-    fun startPreview() {
-        val session = captureSession ?: return
-        val request = captureRequest ?: return
-        session.setRepeatingRequest(request, object : CameraCaptureSession.CaptureCallback() {
-            override fun onCaptureStarted(session: CameraCaptureSession,
-                                          request: CaptureRequest, timestamp: Long, frameNumber: Long) {
-                super.onCaptureStarted(session, request, timestamp, frameNumber)
-
-            }
-
-            override fun onCaptureCompleted(session: CameraCaptureSession,
-                                            request: CaptureRequest, result: TotalCaptureResult) {
-                super.onCaptureCompleted(session, request, result)
-
-            }
-
-            override fun onCaptureFailed(session: CameraCaptureSession, request: CaptureRequest, failure: CaptureFailure) {
-                super.onCaptureFailed(session, request, failure)
-            }
-        }, workHandler)
-    }
-
-    fun stopPreview() {
-
+    fun setRepeatingRequest(cameraDevice: CameraDevice, session: CameraCaptureSession, surface: Surface) {
+        val requestBuilder = cameraDevice.createCaptureRequest(CameraDevice.TEMPLATE_PREVIEW)
+        requestBuilder.addTarget(surface)
+        val request = requestBuilder.build()
+        this.captureRequest = request
+        session.setRepeatingRequest(request, object : CameraCaptureSession.CaptureCallback() {}, workHandler)
     }
 
     fun release() {
-
+        captureSession?.stopRepeating()
+        captureSession?.abortCaptures()
+        captureSession = null
+        captureRequest = null
+        cameraDevice?.close()
         cameraDevice = null
-    }
-
-    private fun CameraDevice?.execute(task: (CameraDevice) -> Unit) {
-        this ?: return
-        task(this)
     }
 }
