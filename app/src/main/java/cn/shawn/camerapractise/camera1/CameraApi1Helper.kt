@@ -6,7 +6,6 @@ import android.util.Log
 import android.util.SparseArray
 import android.view.SurfaceHolder
 import android.view.SurfaceView
-import cn.shawn.camerapractise.recorder.VideoRecorder
 import java.lang.Exception
 
 private const val TAG = "CameraApi1Helper"
@@ -19,10 +18,6 @@ class CameraApi1Helper(private val surfaceView: SurfaceView) {
     private var camera: Camera? = null
 
     private val availableCameras = SparseArray<Camera.CameraInfo>()
-
-    private val videoRecorder by lazy {
-        VideoRecorder(surfaceView.context)
-    }
 
     private val availableCameraCount: Int
         get() = Camera.getNumberOfCameras()
@@ -115,12 +110,6 @@ class CameraApi1Helper(private val surfaceView: SurfaceView) {
                 execCameraSafe { it.startPreview() }
                 Log.d(TAG, "takePicture: jepg data ${jpegData.contentToString()}")
             }
-        }
-    }
-
-    fun recordVideo() {
-        execCameraSafe { camera ->
-            videoRecorder.startIntervalRecorder(camera)
         }
     }
 

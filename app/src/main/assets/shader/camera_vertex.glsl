@@ -1,9 +1,9 @@
 precision mediump float;
-attribute vec4 a_position;
+attribute vec4 a_vertexPosition;
 attribute vec2 a_texturePosition;
 varying vec2 v_texturePosition;
 
 void main() {
     v_texturePosition = a_texturePosition;
-    gl_Position = a_position;
+    gl_Position = a_vertexPosition;
 }

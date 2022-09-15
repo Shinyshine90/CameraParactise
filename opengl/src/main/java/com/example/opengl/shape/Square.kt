@@ -8,10 +8,10 @@ import com.example.opengl.util.ext.toFloatBuffer
 class Square {
 
     private val vertexBuffer = floatArrayOf(
-        0F, 0F,
-        0.5F, 0.5F,
-        0.5F, -0.5F,
-        1F, 0F
+        -1F, -1F,
+        1F, -1F,
+        -1F, 1F,
+        1F, 1F
     ).toFloatBuffer()
 
     private val colorData = floatArrayOf(
@@ -55,7 +55,7 @@ class Square {
         GLES20.glEnableVertexAttribArray(fragColorLocation)
         GLES20.glVertexAttribPointer(fragColorLocation, 4, GLES20.GL_FLOAT, false, 0, colorData)
 
-        GLES20.glDrawArrays(GLES20.GL_TRIANGLES, 0, 4)
+        GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, 0, 4)
         GLES20.glDisableVertexAttribArray(vertexLocation)
     }
 
@@ -86,7 +86,7 @@ class Square {
                 precision mediump float;
                 varying   vec4 v_Color;
                 void main() {
-                    gl_FragColor = v_Color;
+                    gl_FragColor = vec4(0.0, 1.0, 0.0, 1.0);
                 }
             """
     }
