@@ -3,6 +3,7 @@ package cn.shawn.camerapractise.camera2
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.SurfaceTexture
+import android.opengl.GLES11Ext
 import android.opengl.GLES20
 import android.opengl.GLSurfaceView
 import android.os.SystemClock
@@ -60,13 +61,13 @@ class CameraRender(private val context: Context) : GLSurfaceView.Renderer {
     }
 
     override fun onSurfaceChanged(p0: GL10?, p1: Int, p2: Int) {
-        GLES20.glViewport(0, 0, 1280, 720)
+        GLES20.glViewport(0, 0, p1, p2)
     }
 
     override fun onDrawFrame(gl10: GL10?) {
         Log.d(TAG, "onDrawFrame: ")
         oesTexture.updateTexImage()
-        GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT)
+        GLES20.glClear(GLES20.GL_DEPTH_BUFFER_BIT or GLES20.GL_COLOR_BUFFER_BIT)
         GLES20.glUseProgram(glProgramId)
 
         val vertexPosition = GLES20.glGetAttribLocation(glProgramId, "a_vertexPosition")
@@ -103,14 +104,14 @@ class CameraRender(private val context: Context) : GLSurfaceView.Renderer {
 
         //绘制
         GLES20.glActiveTexture(GLES20.GL_TEXTURE30)
-        GLES20.glBindTexture(glProgramId, oesTextureId)
+        GLES20.glBindTexture(GLES11Ext.GL_SAMPLER_EXTERNAL_OES, oesTextureId)
 
         val textureLocation = GLES20.glGetUniformLocation(glProgramId, "u_texture")
         GLES20.glUniform1i(textureLocation, 30)
 
         GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, 0, 4)
         GLES20.glBindTexture(glProgramId, 0)
-        takePicture(gl10)
+        //takePicture(gl10)
     }
 
     var onTakePicture: ((Bitmap) -> Unit)? = null
