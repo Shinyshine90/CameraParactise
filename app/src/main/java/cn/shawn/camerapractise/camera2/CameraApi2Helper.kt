@@ -30,21 +30,24 @@ class CameraApi2Helper(private val context: Context) {
 
     private var captureRequest: CaptureRequest? = null
 
+    private var captureSurfaceTexture: SurfaceTexture? = null
+
     fun printCameraInfo() {
         cameraManager.getCameraCharacteristics(CameraCharacteristics.LENS_FACING_FRONT.toString())
             .printCameraInfo(TAG)
     }
 
     fun startPreview (
-        surfaceTexture: SurfaceTexture,
+        texture: SurfaceTexture,
         cameraId: String = CameraCharacteristics.LENS_FACING_FRONT.toString()
     ) {
+        captureSurfaceTexture = texture
         cameraManager.openCamera(cameraId, object : CameraDevice.StateCallback() {
 
             override fun onOpened(camera: CameraDevice) {
                 Log.d(TAG, "onOpened: ")
                 cameraDevice = camera
-                createCaptureSession(camera, Surface(surfaceTexture))
+                createCaptureSession(camera, Surface(texture))
             }
 
             override fun onDisconnected(camera: CameraDevice) {
@@ -87,7 +90,15 @@ class CameraApi2Helper(private val context: Context) {
         this.captureRequest = request
         session.setRepeatingRequest(
             request,
-            object : CameraCaptureSession.CaptureCallback() {},
+            object : CameraCaptureSession.CaptureCallback() {
+                override fun onCaptureCompleted(
+                    session: CameraCaptureSession,
+                    request: CaptureRequest,
+                    result: TotalCaptureResult
+                ) {
+                    super.onCaptureCompleted(session, request, result)
+                }
+        },
             workHandler
         )
     }

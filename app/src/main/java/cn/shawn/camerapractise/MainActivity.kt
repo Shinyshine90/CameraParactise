@@ -4,6 +4,7 @@ import android.graphics.Bitmap
 import android.graphics.SurfaceTexture
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.view.Surface
 import android.view.View
 import cn.shawn.camerapractise.camera2.CameraApi2Helper
 import cn.shawn.camerapractise.camera2.CameraRender
