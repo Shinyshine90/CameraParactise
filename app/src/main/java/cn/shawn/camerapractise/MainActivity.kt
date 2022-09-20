@@ -1,14 +1,13 @@
 package cn.shawn.camerapractise
 
-import android.graphics.Bitmap
-import android.graphics.SurfaceTexture
+import android.opengl.GLES20
+import android.opengl.GLSurfaceView
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.view.Surface
-import android.view.View
-import cn.shawn.camerapractise.camera2.CameraApi2Helper
-import cn.shawn.camerapractise.camera2.CameraRender
 import cn.shawn.camerapractise.databinding.ActivityMainBinding
+import cn.shawn.camerapractise.test.TexturesGlRender
+import javax.microedition.khronos.egl.EGLConfig
+import javax.microedition.khronos.opengles.GL10
 
 private const val TAG = "MainActivityTAG"
 
@@ -18,45 +17,39 @@ class MainActivity : AppCompatActivity() {
         ActivityMainBinding.inflate(layoutInflater)
     }
 
-    private val camera2Api by lazy {
-        CameraApi2Helper(this)
-    }
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(viewBinding.root)
-        viewBinding.surfaceView.onTextureCreated = this::onTextureCreated
-        viewBinding.surfaceView.onTakePicture = this::onReceivePicture
-        viewBinding.btnNormal.setOnClickListener(this::changeMode)
-        viewBinding.btnLeft.setOnClickListener(this::changeMode)
-        viewBinding.btnRight.setOnClickListener(this::changeMode)
-        viewBinding.btnTop.setOnClickListener(this::changeMode)
-        viewBinding.btnBottom.setOnClickListener(this::changeMode)
-        viewBinding.btnH.setOnClickListener(this::changeMode)
-        camera2Api.printCameraInfo()
-    }
-
-    private fun onReceivePicture(bitmap: Bitmap) {
-        viewBinding.ivPicture.post {
-            viewBinding.ivPicture.setImageBitmap(bitmap)
+        findViewById<GLSurfaceView>(R.id.sv).apply {
+            setEGLContextClientVersion(2)
+            setRenderer(SimpleRender())
+            renderMode = GLSurfaceView.RENDERMODE_CONTINUOUSLY
         }
     }
 
-    private fun changeMode(v: View) {
-        val mode = when (v) {
-            viewBinding.btnLeft -> CameraRender.PreviewMode.LEFT
-            viewBinding.btnRight -> CameraRender.PreviewMode.RIGHT
-            viewBinding.btnTop -> CameraRender.PreviewMode.TOP
-            viewBinding.btnBottom -> CameraRender.PreviewMode.BOTTOM
-            viewBinding.btnH -> CameraRender.PreviewMode.H
-            else -> CameraRender.PreviewMode.NORMAL
+    inner class SimpleRender: GLSurfaceView.Renderer {
+
+        private val render = TexturesGlRender(this@MainActivity)
+
+        private var width = 0
+
+        private var height = 0
+
+        override fun onSurfaceCreated(gl: GL10?, config: EGLConfig?) {
+            render.initGlProgram()
+            GLES20.glEnable(GLES20.GL_BLEND)
+            GLES20.glBlendFunc(GLES20.GL_SRC_ALPHA, GLES20.GL_ONE_MINUS_SRC_ALPHA)
         }
-        viewBinding.surfaceView.changeMode(mode)
-    }
 
-    private fun onTextureCreated(texture: SurfaceTexture) {
-        camera2Api.startPreview(texture)
-    }
+        override fun onSurfaceChanged(gl: GL10?, width: Int, height: Int) {
+            this.width = width
+            this.height = height
+        }
 
+        override fun onDrawFrame(gl: GL10?) {
+            render.draw(width, height)
+        }
+
+    }
 
 }
