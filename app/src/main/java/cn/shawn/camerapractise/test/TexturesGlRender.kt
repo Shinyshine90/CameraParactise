@@ -4,10 +4,10 @@ import android.content.Context
 import android.opengl.GLES20
 import android.os.SystemClock
 import android.util.Log
-import com.example.core.opengl.base.BaseTexturesGlRender
+import com.example.core.opengl.base.BaseTexturesGlRenderer
 import com.example.core.util.GlCoordinates
 
-class TexturesGlRender(context: Context): BaseTexturesGlRender(context,
+class TexturesGlRender(context: Context): BaseTexturesGlRenderer(context,
     "shader/textures/vertex.glsl", "shader/textures/fragment.glsl") {
 
     override fun getTextureBitmapAssets() =
@@ -24,12 +24,12 @@ class TexturesGlRender(context: Context): BaseTexturesGlRender(context,
         val stamp = SystemClock.elapsedRealtime()
         setVertexAttributeLocation("a_vertexCoors", vertexCoordinatesBuffer[0])
         setVertexAttributeLocation("a_textureCoors", textureCoordinatesBuffer[0])
-        bindTextureToSample(textures[0], "u_texture")
+        bindTextureToSample("u_texture", textures[0])
         GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, 0, 4)
 
         setVertexAttributeLocation("a_vertexCoors", vertexCoordinatesBuffer[1])
         setVertexAttributeLocation("a_textureCoors", textureCoordinatesBuffer[0])
-        bindTextureToSample(textures[1], "u_texture")
+        bindTextureToSample("u_texture", textures[1])
         GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, 0, 4)
         Log.e("TexturesGlRender", "onDraw: cost ${SystemClock.elapsedRealtime() - stamp}")
     }

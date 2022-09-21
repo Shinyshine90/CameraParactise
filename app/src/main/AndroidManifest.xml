@@ -12,12 +12,12 @@
     android:roundIcon="@mipmap/ic_launcher_round"
     android:supportsRtl="true"
     android:theme="@style/Theme.CameraPractise"
+    android:name=".App"
     tools:targetApi="31">
     <activity
       android:exported="true"
       android:name=".MainActivity"
-      android:screenOrientation="portrait"
-      android:theme="@style/Theme.AppCompat.Light.NoActionBar">
+      android:launchMode="singleInstance">
       <intent-filter>
         <action android:name="android.intent.action.MAIN" />
 
@@ -26,11 +26,9 @@
     </activity>
   </application>
 
-
   <uses-feature android:name="android.hardware.camera" />
+  <uses-permission android:name="android.permission.CAMERA" />
 
   <uses-permission android:name="android.permission.RECORD_AUDIO" />
-
-  <uses-permission android:name="android.permission.CAMERA" />
 
 </manifest>

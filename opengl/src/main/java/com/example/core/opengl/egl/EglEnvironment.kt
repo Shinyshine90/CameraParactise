@@ -119,6 +119,10 @@ class EglEnvironment {
     fun eglSwapBuffers(eglSurface: EGLSurface) {
         EGL14.eglSwapBuffers(eglDisplay, eglSurface)
     }
+
+    fun destroyEglSurface(eglSurface: EGLSurface) {
+        EGL14.eglDestroySurface(eglDisplay, eglSurface)
+    }
     
     class EglEnvException(msg: String): Exception(msg)
 

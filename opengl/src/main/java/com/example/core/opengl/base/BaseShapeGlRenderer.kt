@@ -7,7 +7,7 @@ import com.example.core.util.GlUtils
 import com.example.core.util.ext.toFloatBuffer
 import java.nio.Buffer
 
-abstract class BaseOpenGlRender(
+abstract class BaseShapeGlRenderer(
     protected val context: Context,
     private val vertexAssetPath: String,
     private val fragmentAssetPath: String
@@ -33,13 +33,13 @@ abstract class BaseOpenGlRender(
 
     open fun draw(width: Int, height: Int) {
         GLES20.glClearColor(1f, 1f, 1f, 1f)
-        GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT)
+        //GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT)
         GLES20.glViewport(0, 0, width, height)
         GLES20.glUseProgram(glProgram)
         onDraw(width, height)
     }
 
-    abstract fun onDraw(width: Int, height: Int)
+    protected abstract fun onDraw(width: Int, height: Int)
 
     protected fun setVertexAttributeLocation(name: String, buffer: Buffer) {
         GlUtils.setVertexAttributeLocation(glProgram, name, buffer)

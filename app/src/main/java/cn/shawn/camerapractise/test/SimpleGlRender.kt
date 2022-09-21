@@ -2,11 +2,11 @@ package cn.shawn.camerapractise.test
 
 import android.content.Context
 import android.opengl.GLES20
-import com.example.core.opengl.base.BaseOpenGlRender
+import com.example.core.opengl.base.BaseShapeGlRenderer
 import com.example.core.util.GlCoordinates
 
 class SimpleGlRender(context: Context) :
-    BaseOpenGlRender(context,
+    BaseShapeGlRenderer(context,
         "shader/simple/vertex.glsl", "shader/simple/fragment.glsl") {
 
     override fun createVertexCoordinates() = GlCoordinates.createNormalVertexPositions()

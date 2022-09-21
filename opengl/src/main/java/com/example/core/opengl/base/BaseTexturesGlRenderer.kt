@@ -6,11 +6,11 @@ import com.example.core.util.AssetsUtils
 import com.example.core.util.GlUtils
 import com.example.core.util.ext.toFloatBuffer
 
-abstract class BaseTexturesGlRender(
+abstract class BaseTexturesGlRenderer(
     context: Context,
     vertexAssetPath: String,
     fragmentAssetPath: String
-) : BaseOpenGlRender(context, vertexAssetPath, fragmentAssetPath) {
+) : BaseShapeGlRenderer(context, vertexAssetPath, fragmentAssetPath) {
 
     protected val vertexCoordinatesBuffer by lazy {
         createVertexCoordinatesList().map {
@@ -41,7 +41,7 @@ abstract class BaseTexturesGlRender(
         textures
     }
 
-    protected fun bindTextureToSample(texture: Int, samplerName: String) {
+    protected fun bindTextureToSample(samplerName: String, texture: Int) {
         GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, texture)
         GLES20.glActiveTexture(GLES20.GL_TEXTURE30)
         val locationSampler = GLES20.glGetUniformLocation(glProgram, samplerName)

@@ -43,6 +43,7 @@ object GlUtils {
     }
 
     fun setVertexAttributeLocation(program:Int, name: String, buffer: Buffer) {
+        buffer.position(0)
         val location = GLES20.glGetAttribLocation(program, name)
         GLES20.glEnableVertexAttribArray(location)
         GLES20.glVertexAttribPointer(location, 2, GLES20.GL_FLOAT, false, 0, buffer)
@@ -92,6 +93,32 @@ object GlUtils {
         GLES20.glTexImage2D(GLES20.GL_TEXTURE_2D, 0, GLES20.GL_RGBA,
             bitmap.width, bitmap.height, 0, GLES20.GL_RGBA, GLES20.GL_UNSIGNED_BYTE, b)
         GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, 0)
+    }
+
+    fun createFrameBuffer(width: Int, height: Int): Pair<Int, Int> {
+        // 创建frame buffer绑定的纹理
+        // Create texture which binds to frame buffer
+        val textures = IntArray(1)
+        GLES20.glGenTextures(textures.size, textures, 0)
+        val frameBufferTexture = textures[0]
+
+        // 创建frame buffer
+        // Create frame buffer
+        val frameBuffers = IntArray(1)
+        GLES20.glGenFramebuffers(frameBuffers.size, frameBuffers, 0)
+        val frameBuffer = frameBuffers[0]
+
+        // 将frame buffer与texture绑定
+        // Bind the texture to frame buffer
+        GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, frameBufferTexture)
+        GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MIN_FILTER, GLES20.GL_LINEAR)
+        GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MAG_FILTER, GLES20.GL_LINEAR)
+        GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_WRAP_S, GLES20.GL_CLAMP_TO_EDGE)
+        GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_WRAP_T, GLES20.GL_CLAMP_TO_EDGE)
+        GLES20.glTexImage2D(GLES20.GL_TEXTURE_2D, 0, GLES20.GL_RGBA, width, height, 0, GLES20.GL_RGBA, GLES20.GL_UNSIGNED_BYTE, null)
+        GLES20.glBindFramebuffer(GLES20.GL_FRAMEBUFFER, frameBuffer)
+        GLES20.glFramebufferTexture2D(GLES20.GL_FRAMEBUFFER, GLES20.GL_COLOR_ATTACHMENT0, GLES20.GL_TEXTURE_2D, frameBufferTexture, 0)
+        return Pair(frameBuffer, frameBufferTexture)
     }
 
     fun saveTexture(texture: Int, width: Int, height: Int): Bitmap {
