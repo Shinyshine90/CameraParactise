@@ -1,4 +1,4 @@
-package cn.shawn.camerapractise.test
+package cn.shawn.camerapractise.test.render
 
 import android.content.Context
 import android.opengl.GLES20

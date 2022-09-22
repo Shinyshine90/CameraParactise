@@ -1,4 +1,4 @@
-package cn.shawn.camerapractise.test.fbo
+package cn.shawn.camerapractise.test.render.fbo
 
 import android.content.Context
 import com.example.core.opengl.fbo.FboRendererChain

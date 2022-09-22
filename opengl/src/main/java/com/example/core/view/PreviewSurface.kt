@@ -47,6 +47,7 @@ class PreviewSurface(
 
     fun release() {
         this.surfaceView?.holder?.removeCallback(surfaceCallback)
+        this.surfaceView = null
         this.onSurfaceCreated = null
     }
 

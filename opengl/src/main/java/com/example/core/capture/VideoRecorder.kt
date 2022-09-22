@@ -3,8 +3,8 @@ package com.example.core.capture
 import android.content.Context
 import android.media.MediaRecorder
 import android.os.Build
-import android.util.Log
 import android.view.Surface
+import com.example.core.util.CarcorderLog
 
 private const val TAG = "VideoRecorder"
 
@@ -35,7 +35,7 @@ class VideoRecorder(context: Context, config: VideoConfig, filePath: String) {
         try {
             mediaRecorder.prepare()
         } catch (e: Exception) {
-            Log.d(TAG, "prepare error ${e.message}")
+            CarcorderLog.d(TAG, "prepare error ${e.message}")
         }
     }
 
@@ -43,7 +43,7 @@ class VideoRecorder(context: Context, config: VideoConfig, filePath: String) {
         try {
             mediaRecorder.start()
         } catch (e: Exception) {
-            Log.d(TAG, "start error ${e.message}")
+            CarcorderLog.d(TAG, "start error ${e.message}")
         }
     }
 
@@ -51,7 +51,7 @@ class VideoRecorder(context: Context, config: VideoConfig, filePath: String) {
         try {
             mediaRecorder.stop()
         } catch (e: Exception) {
-            Log.d(TAG, "stop error ${e.message}")
+            CarcorderLog.d(TAG, "stop error ${e.message}")
         }
     }
     data class VideoConfig(

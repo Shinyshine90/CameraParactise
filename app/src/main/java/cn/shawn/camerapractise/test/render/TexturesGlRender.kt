@@ -1,9 +1,9 @@
-package cn.shawn.camerapractise.test
+package cn.shawn.camerapractise.test.render
 
 import android.content.Context
 import android.opengl.GLES20
 import android.os.SystemClock
-import android.util.Log
+import com.example.core.util.CarcorderLog
 import com.example.core.opengl.base.BaseTexturesGlRenderer
 import com.example.core.util.GlCoordinates
 
@@ -31,6 +31,6 @@ class TexturesGlRender(context: Context): BaseTexturesGlRenderer(context,
         setVertexAttributeLocation("a_textureCoors", textureCoordinatesBuffer[0])
         bindTextureToSample("u_texture", textures[1])
         GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, 0, 4)
-        Log.e("TexturesGlRender", "onDraw: cost ${SystemClock.elapsedRealtime() - stamp}")
+        CarcorderLog.e("TexturesGlRender", "onDraw: cost ${SystemClock.elapsedRealtime() - stamp}")
     }
 }

@@ -23,11 +23,19 @@
           android:layout_width="match_parent"
           android:layout_height="wrap_content"
           android:orientation="horizontal">
+
+            <Button
+              android:id="@+id/btn_capture"
+              android:text="capture"
+              android:layout_width="wrap_content"
+              android:layout_margin="10dp"
+              android:layout_height="60dp"/>
+
             <Button
               android:id="@+id/btn_l"
               android:layout_width="40dp"
-              android:layout_margin="10dp" android:layout_height="60dp"
-
+              android:layout_margin="10dp"
+              android:layout_height="60dp"
               android:text="l" />
             <Button
               android:id="@+id/btn_r"

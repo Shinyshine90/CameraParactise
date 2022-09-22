@@ -2,7 +2,6 @@ package com.example.core.opengl.render
 
 import android.content.Context
 import android.opengl.GLES20
-import android.util.Log
 import android.util.SparseArray
 import com.example.core.entity.RenderMode
 import com.example.core.opengl.fbo.BaseTexturesFboRenderer
@@ -67,8 +66,6 @@ class CameraWaterMarkRender(context: Context): BaseTexturesFboRenderer(
         //绘制Marker点
         val renderMode = chain.getTag(RenderMode::class.java)
         renderReflects[renderMode.mode].forEach {
-            Log.d("CameraWaterMarkRender", "onDraw: textureId=${imageTextures[it.first]}, " +
-                    "vertexIndex=${it.second}")
             drawMarker(imageTextures[it.first], vertexCoordinatesBuffer[it.second], frameBuffer)
         }
     }

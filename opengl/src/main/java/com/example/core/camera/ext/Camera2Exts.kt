@@ -4,25 +4,25 @@ import android.graphics.ImageFormat
 import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.params.StreamConfigurationMap
 import android.media.ImageReader
-import android.util.Log
+import com.example.core.util.CarcorderLog
 import android.util.Size
 
 fun CameraCharacteristics.printCameraInfo(tag: String) {
-    Log.d(tag, "printCameraInfo: ------ start -------")
+    CarcorderLog.d(tag, "printCameraInfo: ------ start -------")
 
     val facing = this.get(CameraCharacteristics.LENS_FACING)
-    Log.d(tag, "printCameraInfo: facing ${facing?.getFacingDescription()}")
+    CarcorderLog.d(tag, "printCameraInfo: facing ${facing?.getFacingDescription()}")
 
     val hardwareLevel = this.get(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL)
-    Log.d(tag, "printCameraInfo: hardware level ${hardwareLevel?.getHardwareLevel()}")
+    CarcorderLog.d(tag, "printCameraInfo: hardware level ${hardwareLevel?.getHardwareLevel()}")
 
     val streamConfigMap = this.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP)
     val sizes = streamConfigMap?.getSupportedTypeSize(ImageReader::class.java)
-    Log.d(tag, "printCameraInfo: supportedSize ${sizes?.joinToString(",")}")
-    Log.d(tag, "printCameraInfo: support YUV ${streamConfigMap?.isOutputSupportedFor(ImageFormat.YUV_420_888)}")
-    Log.d(tag, "printCameraInfo: support NV21 ${streamConfigMap?.isOutputSupportedFor(ImageFormat.NV21)}")
+    CarcorderLog.d(tag, "printCameraInfo: supportedSize ${sizes?.joinToString(",")}")
+    CarcorderLog.d(tag, "printCameraInfo: support YUV ${streamConfigMap?.isOutputSupportedFor(ImageFormat.YUV_420_888)}")
+    CarcorderLog.d(tag, "printCameraInfo: support NV21 ${streamConfigMap?.isOutputSupportedFor(ImageFormat.NV21)}")
 
-    Log.d(tag, "printCameraInfo: ------ end -------")
+    CarcorderLog.d(tag, "printCameraInfo: ------ end -------")
 }
 
 private fun Int.getFacingDescription(): String {

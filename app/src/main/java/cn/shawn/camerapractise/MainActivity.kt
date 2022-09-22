@@ -2,11 +2,14 @@ package cn.shawn.camerapractise
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.view.View
 import android.view.ViewGroup
 import androidx.core.view.children
 import cn.shawn.camerapractise.databinding.ActivityMainBinding
+import cn.shawn.camerapractise.test.CaptureTest
 import com.example.core.CarcorderManager
 import com.example.core.entity.RenderMode
+import com.example.core.util.CarcorderLog
 
 private const val TAG = "MainActivityTAG"
 
@@ -20,20 +23,24 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(viewBinding.root)
         handleClick()
+        CarcorderLog.d(TAG, "onCreate")
     }
 
     override fun onStart() {
         super.onStart()
         CarcorderManager.startPreview(viewBinding.sv)
+        CarcorderLog.d(TAG, "onStart")
     }
 
     override fun onStop() {
         super.onStop()
         CarcorderManager.stopPreview()
+        CarcorderLog.d(TAG, "onStop")
     }
 
     override fun onDestroy() {
         super.onDestroy()
+        CarcorderLog.d(TAG, "onDestroy")
     }
 
     private fun handleClick() {
@@ -56,6 +63,11 @@ class MainActivity : AppCompatActivity() {
                     else -> RenderMode.FOUR_SIDE_T
                 }
                 CarcorderManager.setRenderMode(renderMode)
+            }
+        }
+        findViewById<View>(R.id.btn_capture).setOnClickListener {
+            CarcorderManager.capturePhoto(CaptureTest.getFilePath(this)) {
+                CarcorderLog.d("CaptureTest"," result ${it.isSuccess}")
             }
         }
     }

@@ -8,7 +8,7 @@ import android.hardware.camera2.CameraDevice
 import android.hardware.camera2.CameraManager
 import android.os.Handler
 import android.os.Looper
-import android.util.Log
+import com.example.core.util.CarcorderLog
 import com.example.core.camera.ext.printCameraInfo
 import com.example.core.camera.session.BaseCaptureSession
 import java.util.*
@@ -46,29 +46,34 @@ class CamerasManager(
         try {
             cameraManager.getCameraCharacteristics(cameraId).printCameraInfo(tag)
         } catch (e: CameraAccessException) {
-            Log.e(tag, "printCameraInfo: error")
+            CarcorderLog.e(tag, "printCameraInfo: error")
         }
     }
 
     fun openCamera(cameraId: String, callback: (Result<CameraDevice>) -> Unit) {
+        CarcorderLog.d(TAG, "openCamera $cameraId")
         cameraManager.openCamera(cameraId, object : CameraDevice.StateCallback() {
 
             override fun onOpened(camera: CameraDevice) {
                 cameras[camera.id] = camera
                 callback(Result.success(camera))
+                CarcorderLog.d(TAG, "onOpened: $cameraId")
             }
 
             override fun onDisconnected(camera: CameraDevice) {
                 onCameraDisconnect(camera)
+                CarcorderLog.d(TAG, "onDisconnected: $cameraId")
             }
 
             override fun onError(camera: CameraDevice, error: Int) {
                 callback(Result.failure(RuntimeException("camera $cameraId open failed, cause $error")))
+                CarcorderLog.d(TAG, "onError: $cameraId error $error")
             }
         }, callbackHandler)
     }
 
     fun closeCamera(cameraId: String) {
+        CarcorderLog.d(TAG, "close camera $cameraId")
         cameras[cameraId]?.apply {
             closeAllSession(this)
             this.close()
@@ -77,9 +82,10 @@ class CamerasManager(
     }
 
     fun <T: BaseCaptureSession> startCapture(session: T) {
+        CarcorderLog.d(TAG, "startCapture")
         if (sessions.contains(session)) return
         session.startCapture { result ->
-            Log.d(TAG, "startCapture result ${result.isSuccess} ${result.getOrNull()}")
+            CarcorderLog.d(TAG, "startCapture result ${result.isSuccess} ${result.getOrNull()}")
             result.getOrNull()?.apply {
                 sessions.add(session)
             }
@@ -87,17 +93,20 @@ class CamerasManager(
     }
 
     fun <T: BaseCaptureSession> stopCapture(session: T) {
+        CarcorderLog.d(TAG, "stopCapture")
         if (!sessions.contains(session)) return
         session.stopCaptureSession()
         sessions.remove(session)
     }
 
     private fun onCameraDisconnect(camera: CameraDevice) {
+        CarcorderLog.d(TAG, "camera lost ${camera.id}")
         closeAllSession(camera)
         cameras.remove(camera.id)
     }
 
     private fun closeAllSession(camera: CameraDevice) {
+        CarcorderLog.d(TAG, "closeAllSession ${camera.id}")
         sessions.filter {
             it is BaseCaptureSession && it.camera == camera
         }.forEach {

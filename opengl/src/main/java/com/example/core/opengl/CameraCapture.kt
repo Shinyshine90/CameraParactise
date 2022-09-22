@@ -6,19 +6,21 @@ import android.opengl.EGLSurface
 import android.opengl.GLES20
 import android.os.Looper
 import android.os.SystemClock
-import android.util.Log
 import android.view.Surface
+import com.example.core.capture.PhotoCapture
 import com.example.core.entity.MatrixTransform
 import com.example.core.entity.RenderMode
 import com.example.core.entity.config.CaptureConfig
 import com.example.core.opengl.egl.EglEnvironment
 import com.example.core.opengl.render.CameraRenderChain
+import com.example.core.util.CarcorderLog
 import com.example.core.util.GlUtils
 import com.example.core.view.PreviewSurface
 
 class CameraCapture(
     private val context: Context,
     private val captureConfig: CaptureConfig,
+    private val photoCapture: PhotoCapture,
     private val fetchRenderMode: () -> RenderMode
 ) {
     private val openGlThread = OpenGlThread()
@@ -42,14 +44,18 @@ class CameraCapture(
     }
 
     private fun initEgl() {
-        eglEnvironment.init()
+        runOnGlThread {
+            eglEnvironment.init()
+        }
     }
 
     private fun initOpenGlProgram() {
-        //支持透明纹理
-        GLES20.glEnable(GLES20.GL_BLEND)
-        GLES20.glBlendFunc(GLES20.GL_SRC_ALPHA, GLES20.GL_ONE_MINUS_SRC_ALPHA)
-        cameraRenderChain.initRender()
+        runOnGlThread {
+            //支持透明纹理
+            GLES20.glEnable(GLES20.GL_BLEND)
+            GLES20.glBlendFunc(GLES20.GL_SRC_ALPHA, GLES20.GL_ONE_MINUS_SRC_ALPHA)
+            cameraRenderChain.initRender()
+        }
     }
 
     fun setupPreviewSurface(surface: PreviewSurface) {
@@ -92,23 +98,38 @@ class CameraCapture(
     private fun onFrameAvailable(surfaceTexture: SurfaceTexture) {
         runOnGlThread {
             surfaceTexture.getTransformMatrix(transformMatrix)
-            draw(transformMatrix)
+            drawSurface(transformMatrix)
             surfaceTexture.updateTexImage()
         }
     }
 
-    fun draw(transformMatrix:FloatArray) {
+    private fun drawSurface(transformMatrix:FloatArray) {
         runOnGlThread {
             fun EGLSurface.drawTexture() {
+                val startStamp = SystemClock.elapsedRealtime()
                 eglEnvironment.makeCurrentSurface(this)
                 cameraRenderChain.tag(MatrixTransform(transformMatrix))
                 cameraRenderChain.tag(fetchRenderMode())
                 cameraRenderChain.processRender(
                     captureConfig.width, captureConfig.height, oesTexture, 0)
+                handlePhotoCapture(cameraRenderChain.getOutputFrameBufferTexture())
                 eglEnvironment.eglSwapBuffers(this)
+                CarcorderLog.d("CameraCapture", "draw cost ${SystemClock.elapsedRealtime() - startStamp}")
             }
             previewEglSurface?.drawTexture()
             recorderEglSurface?.drawTexture()
+        }
+    }
+
+    private fun handlePhotoCapture(texture: Int) {
+        val request = photoCapture.peek() ?: return
+        if (texture < 0) {
+            photoCapture.handleCapture(request, Result.failure(RuntimeException("illegal oesTexture")))
+        } else {
+            val stamp = SystemClock.elapsedRealtime()
+            val bitmap = GlUtils.saveTexture(texture, captureConfig.width, captureConfig.height)
+            CarcorderLog.d("PhotoCapture", "cost ${SystemClock.elapsedRealtime() - stamp}")
+            photoCapture.handleCapture(request, Result.success(bitmap))
         }
     }
 
@@ -124,12 +145,9 @@ class CameraCapture(
 
     init {
         //初始化EGL环境
-        runOnGlThread {
-            val stamp = SystemClock.elapsedRealtime()
-            initEgl()
-            initOpenGlProgram()
-            Log.e("CameraCapture", "camera capture init cost: ${SystemClock.elapsedRealtime() - stamp}")
-        }
+        initEgl()
+        //初始化OPENGL
+        initOpenGlProgram()
     }
 
 }

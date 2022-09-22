@@ -32,4 +32,7 @@ open class FboRendererChain(private val renderers: List<BaseFboRenderer>) {
         render.setSurfaceSize(width, height)
         render.draw(width, height, texture, targetBuffer, index, this)
     }
+
+    fun getOutputFrameBufferTexture(): Int =
+        renderers.getOrNull(renderers.size - 2)?.frameBufferTexture ?: -1
 }
