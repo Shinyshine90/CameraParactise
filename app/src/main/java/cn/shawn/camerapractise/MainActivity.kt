@@ -6,7 +6,8 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.core.view.children
 import cn.shawn.camerapractise.databinding.ActivityMainBinding
-import cn.shawn.camerapractise.test.CaptureTest
+import cn.shawn.camerapractise.test.PhotoCaptureTest
+import cn.shawn.camerapractise.test.VideoCaptureTest
 import com.example.core.CarcorderManager
 import com.example.core.entity.RenderMode
 import com.example.core.util.CarcorderLog
@@ -66,9 +67,15 @@ class MainActivity : AppCompatActivity() {
             }
         }
         findViewById<View>(R.id.btn_capture).setOnClickListener {
-            CarcorderManager.capturePhoto(CaptureTest.getFilePath(this)) {
+            CarcorderManager.capturePhoto(PhotoCaptureTest.getPhotoTakePath(this)) {
                 CarcorderLog.d("CaptureTest"," result ${it.isSuccess}")
             }
+        }
+        findViewById<View>(R.id.btn_start_record).setOnClickListener {
+            CarcorderManager.startVideoRecord(VideoCaptureTest.getVideoTakePath(this))
+        }
+        findViewById<View>(R.id.btn_stop_record).setOnClickListener {
+            CarcorderManager.stopVideoRecord()
         }
     }
 }

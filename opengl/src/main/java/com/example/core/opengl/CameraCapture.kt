@@ -7,7 +7,7 @@ import android.opengl.GLES20
 import android.os.Looper
 import android.os.SystemClock
 import android.view.Surface
-import com.example.core.capture.PhotoCapture
+import com.example.core.capture.MediaCaptureManager
 import com.example.core.entity.MatrixTransform
 import com.example.core.entity.RenderMode
 import com.example.core.entity.config.CaptureConfig
@@ -17,10 +17,12 @@ import com.example.core.util.CarcorderLog
 import com.example.core.util.GlUtils
 import com.example.core.view.PreviewSurface
 
+private const val TAG = "CameraCapture"
+
 class CameraCapture(
     private val context: Context,
     private val captureConfig: CaptureConfig,
-    private val photoCapture: PhotoCapture,
+    private val mediaCaptureManager: MediaCaptureManager,
     private val fetchRenderMode: () -> RenderMode
 ) {
     private val openGlThread = OpenGlThread()
@@ -39,6 +41,8 @@ class CameraCapture(
 
     private val transformMatrix = FloatArray(16)
 
+    private var globalFrameSkipCounter = 3
+
     private val cameraRenderChain by lazy {
         CameraRenderChain(context)
     }
@@ -46,6 +50,7 @@ class CameraCapture(
     private fun initEgl() {
         runOnGlThread {
             eglEnvironment.init()
+            CarcorderLog.d(TAG, "init egl environment complete")
         }
     }
 
@@ -55,6 +60,7 @@ class CameraCapture(
             GLES20.glEnable(GLES20.GL_BLEND)
             GLES20.glBlendFunc(GLES20.GL_SRC_ALPHA, GLES20.GL_ONE_MINUS_SRC_ALPHA)
             cameraRenderChain.initRender()
+            CarcorderLog.d(TAG, "initOpenGlProgram complete")
         }
     }
 
@@ -64,6 +70,7 @@ class CameraCapture(
             previewSurface = surface
             surface.setOnCreateCallback {
                 previewEglSurface = eglEnvironment.createEGLSurface(it)
+                CarcorderLog.d(TAG, "setupPreviewSurface on surface created")
             }
         }
     }
@@ -79,9 +86,10 @@ class CameraCapture(
         }
     }
 
-    fun setupRecorderSurface(surface: Surface) {
+    private fun setupRecorderSurface(surface: Surface) {
         runOnGlThread {
             recorderEglSurface = eglEnvironment.createEGLSurface(surface)
+            CarcorderLog.d(TAG, "setupRecorderSurface ${surface.isValid}")
         }
     }
 
@@ -92,6 +100,7 @@ class CameraCapture(
             surfaceTexture.setDefaultBufferSize(captureConfig.width, captureConfig.height)
             surfaceTexture.setOnFrameAvailableListener(this@CameraCapture::onFrameAvailable)
             callback(surfaceTexture)
+            CarcorderLog.d(TAG, "onCreateOESTexture Complete")
         }
     }
 
@@ -103,10 +112,9 @@ class CameraCapture(
         }
     }
 
-    private fun drawSurface(transformMatrix:FloatArray) {
+    private fun drawSurface(transformMatrix: FloatArray) {
         runOnGlThread {
             fun EGLSurface.drawTexture() {
-                val startStamp = SystemClock.elapsedRealtime()
                 eglEnvironment.makeCurrentSurface(this)
                 cameraRenderChain.tag(MatrixTransform(transformMatrix))
                 cameraRenderChain.tag(fetchRenderMode())
@@ -114,7 +122,6 @@ class CameraCapture(
                     captureConfig.width, captureConfig.height, oesTexture, 0)
                 handlePhotoCapture(cameraRenderChain.getOutputFrameBufferTexture())
                 eglEnvironment.eglSwapBuffers(this)
-                CarcorderLog.d("CameraCapture", "draw cost ${SystemClock.elapsedRealtime() - startStamp}")
             }
             previewEglSurface?.drawTexture()
             recorderEglSurface?.drawTexture()
@@ -122,14 +129,19 @@ class CameraCapture(
     }
 
     private fun handlePhotoCapture(texture: Int) {
-        val request = photoCapture.peek() ?: return
-        if (texture < 0) {
-            photoCapture.handleCapture(request, Result.failure(RuntimeException("illegal oesTexture")))
-        } else {
-            val stamp = SystemClock.elapsedRealtime()
-            val bitmap = GlUtils.saveTexture(texture, captureConfig.width, captureConfig.height)
-            CarcorderLog.d("PhotoCapture", "cost ${SystemClock.elapsedRealtime() - stamp}")
-            photoCapture.handleCapture(request, Result.success(bitmap))
+        runOnGlThread {
+            //drop first three frames after camera opened
+            if (0 < --globalFrameSkipCounter) return@runOnGlThread
+            val request = mediaCaptureManager.pollPhotoCaptureRequest() ?: return@runOnGlThread
+            if (texture < 0) {
+                mediaCaptureManager.handlePhotoCaptureResult(
+                    request, Result.failure(RuntimeException("illegal oesTexture")))
+            } else {
+                val stamp = SystemClock.elapsedRealtime()
+                val bitmap = GlUtils.saveTexture(texture, captureConfig.width, captureConfig.height)
+                CarcorderLog.d("PhotoCapture", "cost ${SystemClock.elapsedRealtime() - stamp}")
+                mediaCaptureManager.handlePhotoCaptureResult(request, Result.success(bitmap))
+            }
         }
     }
 
@@ -143,11 +155,17 @@ class CameraCapture(
         }
     }
 
+    private fun postOnGlThread(executable: () -> Unit, delay: Long = 0) {
+        openGlThread.execute(executable, delay)
+    }
+
     init {
         //初始化EGL环境
         initEgl()
         //初始化OPENGL
         initOpenGlProgram()
+        //注册MediaRecorder的Surface创建回调
+        mediaCaptureManager.onRecordSurfaceCreated = this::setupRecorderSurface
     }
 
 }

@@ -1,4 +1,4 @@
-package com.example.core.capture
+package com.example.core.capture.video
 
 import android.content.Context
 import android.media.MediaRecorder
@@ -28,36 +28,50 @@ class VideoRecorder(context: Context, config: VideoConfig, filePath: String) {
         }
     }
 
+    /** acquire this after prepare **/
     val recordSurface: Surface
         get() = mediaRecorder.surface
 
     fun prepare() {
         try {
             mediaRecorder.prepare()
+            CarcorderLog.e(TAG, "prepare success")
         } catch (e: Exception) {
-            CarcorderLog.d(TAG, "prepare error ${e.message}")
+            CarcorderLog.e(TAG, "prepare error ${e.message}")
         }
     }
 
     fun start() {
         try {
             mediaRecorder.start()
+            CarcorderLog.e(TAG, "prepare start success")
         } catch (e: Exception) {
-            CarcorderLog.d(TAG, "start error ${e.message}")
+            CarcorderLog.e(TAG, "start error ${e.message}")
         }
     }
 
     fun stop() {
         try {
             mediaRecorder.stop()
+            CarcorderLog.e(TAG, "prepare stop success")
         } catch (e: Exception) {
-            CarcorderLog.d(TAG, "stop error ${e.message}")
+            CarcorderLog.e(TAG, "stop error ${e.message}")
         }
     }
+
+    fun release() {
+        try {
+            mediaRecorder.release()
+            CarcorderLog.e(TAG, "prepare release success")
+        } catch (e: Exception) {
+            CarcorderLog.e(TAG, "release error ${e.message}")
+        }
+    }
+
     data class VideoConfig(
         val width: Int,
         val height: Int,
-        val bitRate: Int,
-        val frameRate: Int
+        val bitRate: Int = width * height * 4,
+        val frameRate: Int = 30
     )
 }

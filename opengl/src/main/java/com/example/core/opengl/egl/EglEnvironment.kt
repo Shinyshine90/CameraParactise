@@ -9,11 +9,13 @@ import android.view.Surface
  */
 class EglEnvironment {
 
-    lateinit var eglDisplay: EGLDisplay
+    private lateinit var eglDisplay: EGLDisplay
 
-    lateinit var eglConfig: EGLConfig
+    private lateinit var eglConfig: EGLConfig
 
-    lateinit var eglContext: EGLContext
+    private lateinit var eglContext: EGLContext
+
+    private val fakeSurface = Surface(SurfaceTexture(0))
 
     @Throws(EglEnvException::class)
     fun init() {
@@ -28,7 +30,7 @@ class EglEnvironment {
         //创建EGL Context
         eglContext = createEglContext(eglDisplay, eglConfig)
         //创建一个假的EglSurfaceView占位, 否则会影响EGL环境创建
-        val fakeEglSurface = createEGLSurface(Surface(SurfaceTexture(0)))
+        val fakeEglSurface = createEGLSurface(fakeSurface)
         //在OpenGL 绘制前通过 makeCurrentSurface 设置真正需要绘制的surface
         makeCurrentSurface(fakeEglSurface)
     }

@@ -32,6 +32,20 @@
               android:layout_height="60dp"/>
 
             <Button
+              android:id="@+id/btn_start_record"
+              android:text="record"
+              android:layout_width="wrap_content"
+              android:layout_margin="10dp"
+              android:layout_height="60dp"/>
+
+            <Button
+              android:id="@+id/btn_stop_record"
+              android:text="stop"
+              android:layout_width="wrap_content"
+              android:layout_margin="10dp"
+              android:layout_height="60dp"/>
+
+            <Button
               android:id="@+id/btn_l"
               android:layout_width="40dp"
               android:layout_margin="10dp"

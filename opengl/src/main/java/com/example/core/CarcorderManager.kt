@@ -8,9 +8,11 @@ import android.view.SurfaceView
 import android.widget.Toast
 import com.example.core.camera.CamerasManager
 import com.example.core.camera.session.PreviewCaptureSession
-import com.example.core.capture.PhotoCapture
+import com.example.core.capture.MediaCaptureManager
+import com.example.core.capture.photo.PhotoCapture
 import com.example.core.entity.RenderMode
 import com.example.core.entity.config.CaptureConfig
+import com.example.core.entity.config.RecordConfig
 import com.example.core.opengl.CameraCapture
 import com.example.core.view.PreviewSurface
 
@@ -23,7 +25,7 @@ object CarcorderManager {
 
     private lateinit var camerasManager: CamerasManager
 
-    private val photoCapture = PhotoCapture()
+    private lateinit var mediaCaptureManager: MediaCaptureManager
 
     @Volatile
     private var previewMode = RenderMode.FOUR_SIDE_T
@@ -31,25 +33,44 @@ object CarcorderManager {
     fun init(context: Context, captureConfig: CaptureConfig) {
         this.context = context
         this.camerasManager = CamerasManager(context)
-        this.cameraCapture = CameraCapture(context, captureConfig, photoCapture, this::previewMode)
-        CarcorderLog.d("CarcorderManager", "carcorder init")
+        this.mediaCaptureManager = MediaCaptureManager(context)
+        this.cameraCapture = CameraCapture(context, captureConfig, mediaCaptureManager, this::previewMode)
+        CarcorderLog.d("CarcorderManager", "init")
         openCamera()
     }
 
     fun setRenderMode(mode: RenderMode) {
         previewMode = mode
+        CarcorderLog.d("CarcorderManager", "setRenderMode $mode")
     }
 
     fun startPreview(surfaceView: SurfaceView) {
         cameraCapture.setupPreviewSurface(PreviewSurface(surfaceView))
+        CarcorderLog.d("CarcorderManager", "startPreview $surfaceView")
     }
 
     fun stopPreview() {
         cameraCapture.removePreviewSurface()
+        CarcorderLog.d("CarcorderManager", "stopPreview")
     }
 
     fun capturePhoto(path: String, callback: (Result<String>) -> Unit) {
-        photoCapture.capture(PhotoCapture.Request(path, callback))
+        mediaCaptureManager.insertPhotoCaptureRequest(PhotoCapture.Request(path, callback))
+        CarcorderLog.d("CarcorderManager", "capturePhoto $path")
+    }
+
+    fun setRecordConfig(recordConfig: RecordConfig) {
+        CarcorderLog.d("CarcorderManager", "setRecordConfig $recordConfig")
+    }
+
+    fun startVideoRecord(path: String) {
+        mediaCaptureManager.startVideoRecord(path)
+        CarcorderLog.d("CarcorderManager", "startVideoRecord $path")
+    }
+
+    fun stopVideoRecord() {
+        mediaCaptureManager.stopVideoRecord()
+        CarcorderLog.d("CarcorderManager", "stopVideoRecord")
     }
 
     private fun openCamera() {

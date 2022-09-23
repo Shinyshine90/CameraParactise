@@ -1,4 +1,4 @@
-package com.example.core.capture
+package com.example.core.capture.photo
 
 import android.graphics.Bitmap
 import com.example.core.util.BitmapUtils
@@ -19,11 +19,11 @@ class PhotoCapture {
         SynchronousQueue()
     )
 
-    fun capture(request: Request) {
+    fun insert(request: Request) {
         requestQueue.add(request)
     }
 
-    fun peek(): Request? {
+    fun poll(): Request? {
         return requestQueue.poll()
     }
 

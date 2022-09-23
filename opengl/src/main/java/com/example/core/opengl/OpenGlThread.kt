@@ -12,8 +12,8 @@ class OpenGlThread {
         GlHandler(looper)
     }
 
-    fun execute(executable: () -> Unit) {
-        handler.execute(executable)
+    fun execute(executable: () -> Unit, delay: Long = 0) {
+        handler.execute(executable, delay)
     }
 
     fun release() {
@@ -29,10 +29,11 @@ class OpenGlThread {
             }
         }
 
-        fun execute(task: Runnable) {
-            obtainMessage(WHAT_MSG).apply {
+        fun execute(task: Runnable, delay: Long = 0) {
+            val msg = Message.obtain(this, WHAT_MSG).apply {
                 this.obj = task
-            }.sendToTarget()
+            }
+            sendMessageDelayed(msg, delay)
         }
 
         fun removeTasks() {

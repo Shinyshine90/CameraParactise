@@ -5,9 +5,12 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.ServiceConnection
+import android.media.MediaCodecList
 import android.os.Build
 import android.os.IBinder
-import cn.shawn.camerapractise.test.CaptureTest
+import android.util.Log
+import cn.shawn.camerapractise.test.PhotoCaptureTest
+import cn.shawn.camerapractise.test.VideoCaptureTest
 import com.example.core.util.CarcorderLog
 import com.example.core.CarcorderManager
 import com.example.core.entity.config.CaptureConfig
@@ -33,6 +36,17 @@ class App : Application(){
             }
         }, Context.BIND_AUTO_CREATE)
         CarcorderManager.init(this, CaptureConfig(1280 , 720))
-        //CaptureTest(this).start()
+        PhotoCaptureTest(this).start(10000, 1000)
+        VideoCaptureTest(this).start(10_000, 1000)
+        printEncode()
+    }
+
+    private fun printEncode() {
+        MediaCodecList(MediaCodecList.REGULAR_CODECS).codecInfos.filter {
+            it.isEncoder
+        }.forEach {
+            val soft = it.name.startsWith("OMX.google")
+            Log.d("AppTag", "printEncode: ${if (soft) "软" else "硬"} ${it.name}")
+        }
     }
 }
