@@ -1,109 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+  xmlns:android="http://schemas.android.com/apk/res/android"
   xmlns:app="http://schemas.android.com/apk/res-auto"
   xmlns:tools="http://schemas.android.com/tools"
   android:layout_width="match_parent"
   android:layout_height="match_parent"
   tools:context=".MainActivity">
 
-    <SurfaceView
-        android:id="@+id/sv"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
+  <SurfaceView
+    android:id="@+id/sv"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" />
 
-    <HorizontalScrollView
-      app:layout_constraintLeft_toLeftOf="parent"
-      app:layout_constraintBottom_toBottomOf="parent"
-      android:layout_width="match_parent"
-      android:layout_height="wrap_content"
-      tools:layout_editor_absoluteX="-79dp"
-      tools:layout_editor_absoluteY="0dp">
-        <LinearLayout
-          android:id="@+id/ll"
-          android:layout_width="match_parent"
-          android:layout_height="wrap_content"
-          android:orientation="horizontal">
-
-            <Button
-              android:id="@+id/btn_capture"
-              android:text="capture"
-              android:layout_width="wrap_content"
-              android:layout_margin="10dp"
-              android:layout_height="60dp"/>
-
-            <Button
-              android:id="@+id/btn_start_record"
-              android:text="record"
-              android:layout_width="wrap_content"
-              android:layout_margin="10dp"
-              android:layout_height="60dp"/>
-
-            <Button
-              android:id="@+id/btn_stop_record"
-              android:text="stop"
-              android:layout_width="wrap_content"
-              android:layout_margin="10dp"
-              android:layout_height="60dp"/>
-
-            <Button
-              android:id="@+id/btn_l"
-              android:layout_width="40dp"
-              android:layout_margin="10dp"
-              android:layout_height="60dp"
-              android:text="l" />
-            <Button
-              android:id="@+id/btn_r"
-              android:layout_width="40dp"
-              android:layout_margin="10dp" android:layout_height="60dp"
-              android:text="r" />
-            <Button
-              android:id="@+id/btn_f"
-              android:layout_width="40dp"
-              android:layout_margin="10dp" android:layout_height="60dp"
-              android:text="f" />
-            <Button
-              android:id="@+id/btn_b"
-              android:layout_width="40dp"
-              android:layout_margin="10dp" android:layout_height="60dp"
-              android:text="b" />
-
-            <Button
-              android:id="@+id/btn_lr"
-              android:layout_width="60dp"
-              android:layout_margin="10dp" android:layout_height="60dp"
-              android:text="lr" />
-
-            <Button
-              android:id="@+id/btn_lwr"
-              android:layout_width="80dp"
-              android:layout_margin="10dp" android:layout_height="60dp"
-              android:text="lwr" />
-
-            <Button
-              android:id="@+id/btn_lrw"
-              android:layout_width="80dp"
-              android:layout_margin="10dp" android:layout_height="60dp"
-              android:text="lrw" />
-
-            <Button
-              android:id="@+id/btn_lrb"
-              android:layout_width="80dp"
-              android:layout_margin="10dp" android:layout_height="60dp"
-              android:text="lrw" />
-
-            <Button
-              android:id="@+id/btn_t"
-              android:layout_width="80dp"
-              android:layout_margin="10dp" android:layout_height="60dp"
-              android:text="t" />
-
-            <Button
-              android:id="@+id/btn_h"
-              android:layout_width="80dp"
-              android:layout_margin="10dp" android:layout_height="60dp"
-              android:text="h" />
-
-        </LinearLayout>
-    </HorizontalScrollView>
+  <Button
+    android:id="@+id/btn"
+    android:text="start"
+    app:layout_constraintLeft_toLeftOf="parent"
+    app:layout_constraintRight_toRightOf="parent"
+    app:layout_constraintBottom_toBottomOf="parent"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

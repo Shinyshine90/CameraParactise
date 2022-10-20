@@ -1,13 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.core.opengl">
+  package="com.smartlink.foundation.opengl">
 
-    <uses-permission android:name="android.permission.CAMERA" />
-
-    <uses-feature android:name="android.hardware.camera" />
-
-    <uses-feature
-        android:glEsVersion="0x00020000"
-        android:required="true" />
+  <uses-feature
+    android:glEsVersion="0x00020000"
+    android:required="true" />
 
 </manifest>
